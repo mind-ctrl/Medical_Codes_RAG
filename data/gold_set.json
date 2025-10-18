@@ -1,0 +1,64 @@
+[
+  {
+    "query": "patient with acute chest pain and dyspnea",
+    "ground_truth_codes": [
+      "R07.9",
+      "I20.0"
+    ],
+    "ground_truth_answer": "The patient presents with acute chest pain and dyspnea. Appropriate codes include R07.9 for chest pain, unspecified, and consider I20.0 for unstable angina if cardiac cause is suspected.",
+    "context": [
+      "R07.9: Chest pain, unspecified - used for chest pain when specific cause is not determined",
+      "I20.0: Unstable angina - cardiac chest pain due to coronary artery disease",
+      "R06.0: Dyspnea - difficulty breathing or shortness of breath"
+    ]
+  },
+  {
+    "query": "routine office visit for diabetes management",
+    "ground_truth_codes": [
+      "99214",
+      "E11.9"
+    ],
+    "ground_truth_answer": "For routine diabetes management visit, use 99214 for established patient office visit and E11.9 for Type 2 diabetes mellitus without complications.",
+    "context": [
+      "99214: Office visit for established patient, detailed history and examination",
+      "E11.9: Type 2 diabetes mellitus without complications",
+      "99213: Office visit for established patient, less complex"
+    ]
+  },
+  {
+    "query": "migraine headache treatment",
+    "ground_truth_codes": [
+      "G43.909"
+    ],
+    "ground_truth_answer": "Migraine headache should be coded as G43.909 for migraine, unspecified, not intractable, without status migrainosus.",
+    "context": [
+      "G43.909: Migraine, unspecified, not intractable, without status migrainosus",
+      "G43.919: Migraine, unspecified, intractable, without status migrainosus",
+      "R51: Headache - used for non-specific headaches"
+    ]
+  },
+  {
+    "query": "chronic kidney disease stage 5",
+    "ground_truth_codes": [
+      "N18.6"
+    ],
+    "ground_truth_answer": "Chronic kidney disease stage 5 (end stage renal disease) should be coded as N18.6.",
+    "context": [
+      "N18.6: End stage renal disease - stage 5 chronic kidney disease",
+      "N18.5: Chronic kidney disease, stage 5 (severe)",
+      "N18.4: Chronic kidney disease, stage 4 (severe)"
+    ]
+  },
+  {
+    "query": "blood glucose test",
+    "ground_truth_codes": [
+      "82947"
+    ],
+    "ground_truth_answer": "Blood glucose test should be coded with CPT code 82947 for glucose; quantitative, blood (except reagent strip).",
+    "context": [
+      "82947: Glucose; quantitative, blood (except reagent strip)",
+      "82948: Glucose; blood, reagent strip",
+      "82950: Glucose; post glucose dose (includes glucose)"
+    ]
+  }
+]

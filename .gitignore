@@ -1,0 +1,30 @@
+# Virtualenvs
+medrag_env/
+medrag_env311/
+venv/
+
+# Environment files
+.env
+
+# Chroma / vector DB and sqlite
+chroma_data/
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors/IDE
+.vscode/
+.idea/
+
+# Notebook outputs
+*.nbconvert.ipynb

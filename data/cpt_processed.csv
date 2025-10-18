@@ -1,0 +1,41 @@
+code,description,code_type,specialty,umls_concepts,synonyms
+This document replaces prior documents listing operative procedure codes associated with the NHSN Surgical Site Infection (SSI) Procedure-associated Protocol.,This document replaces prior documents listing operative procedure codes associated with the NHSN Surgical Site Infection (SSI) Procedure-associated Protocol.,CPT,,,
+Codes have been validated using current procedure code references in consultation with a trained coding professional.  Codes are accurate at the time of posting.,Codes have been validated using current procedure code references in consultation with a trained coding professional.  Codes are accurate at the time of posting.,CPT,,,
+"CPT procedure codes included in this code mapping document may be entered instead of (or in addition to) the NHSN procedure category name (such as COLO, HYST or XLAP).","CPT procedure codes included in this code mapping document may be entered instead of (or in addition to) the NHSN procedure category name (such as COLO, HYST or XLAP).",CPT,,,
+Procedure codes may be entered in the following manner:,Procedure codes may be entered in the following manner:,CPT,,,
+"•If the CPT procedure code is entered first, the NHSN procedure code name (such as COLO) will be auto-filled by the application.
+•If the NHSN procedure code name is entered first, the user will need to manually enter the correct CPT procedure code.
+•If there is a mismatch between the NHSN procedure code name and the CPT procedure code, the application will produce an error message.","•If the CPT procedure code is entered first, the NHSN procedure code name (such as COLO) will be auto-filled by the application.
+•If the NHSN procedure code name is entered first, the user will need to manually enter the correct CPT procedure code.
+•If there is a mismatch between the NHSN procedure code name and the CPT procedure code, the application will produce an error message.",CPT,,,
+"NOTES:  
+¤ The CPT procedure code is a required field.","NOTES:  
+¤ The CPT procedure code is a required field.",CPT,,,
+Layout of this procedure code document (see screen capture below),Layout of this procedure code document (see screen capture below),CPT,,,
+"•Procedure categories are listed in alphabetical order along the bottom tabs of the workbook (see purple outline and arrow below), starting with AMP and ending with XLAP.  
+•There is a worksheet for each procedure category.
+•The CPT procedure codes are listed in numerical order (see black outline below) for each procedure catergory.
+•Columns within each worksheet may be sorted and filtered.","•Procedure categories are listed in alphabetical order along the bottom tabs of the workbook (see purple outline and arrow below), starting with AMP and ending with XLAP.  
+•There is a worksheet for each procedure category.
+•The CPT procedure codes are listed in numerical order (see black outline below) for each procedure catergory.
+•Columns within each worksheet may be sorted and filtered.",CPT,,,
+#1.  A procedure description is listed with each procedure code.,#1.  A procedure description is listed with each procedure code.,CPT,,,
+"#2.  The status of each code is noted in the ""Code Status"" column.","#2.  The status of each code is noted in the ""Code Status"" column.",CPT,,,
+"Legend for ""Code Status""*","Legend for ""Code Status""*",CPT,,,
+Added (bold) = Codes that were newly added to the procedure category.,Added (bold) = Codes that were newly added to the procedure category.,CPT,,,
+Moved (underlined) = Codes that were moved from one procedure category to another one.,Moved (underlined) = Codes that were moved from one procedure category to another one.,CPT,,,
+Revised description (italic) = Code descriptions that were revised.,Revised description (italic) = Code descriptions that were revised.,CPT,,,
+*Codes may have more than one status,*Codes may have more than one status,CPT,,,
+"#3.  The ""ALL 2025 CPT CODES"" tab combines procedure codes from ALL operative procedure categories (blue tab).
+#4.  ""Index"" tab (grey tab) that contains hyperlinks to each operative procedure code worksheet.","#3.  The ""ALL 2025 CPT CODES"" tab combines procedure codes from ALL operative procedure categories (blue tab).
+#4.  ""Index"" tab (grey tab) that contains hyperlinks to each operative procedure code worksheet.",CPT,,,
+"TIP:  For searching longer procedure code worksheets, the “Find & Search” button can be found in the upper-right hand corner of the Excel ribbon, see screenshot below.","TIP:  For searching longer procedure code worksheets, the “Find & Search” button can be found in the upper-right hand corner of the Excel ribbon, see screenshot below.",CPT,,,
+Resources,Resources,CPT,,,
+" Help with selecting CPT codes for NHSN SSI Surveillance: contact us at NHSN@cdc.gov.
+ Clinical data architecture (CDA) or upload of operative procedure data from an infection control software program: contact us at NHSNCDA@cdc.gov.
+ Electronic import of operative procedure data via comma separated values (csv) files: refer to the NHSN website, under Acute Care Hospitals, SSI, Supporting Materials"," Help with selecting CPT codes for NHSN SSI Surveillance: contact us at NHSN@cdc.gov.
+ Clinical data architecture (CDA) or upload of operative procedure data from an infection control software program: contact us at NHSNCDA@cdc.gov.
+ Electronic import of operative procedure data via comma separated values (csv) files: refer to the NHSN website, under Acute Care Hospitals, SSI, Supporting Materials",CPT,,,
+"¬ Sample procedure import file (.xls)
+¬ How to import Patient Safety Procedure data January 2020 (.pdf file)","¬ Sample procedure import file (.xls)
+¬ How to import Patient Safety Procedure data January 2020 (.pdf file)",CPT,,,
