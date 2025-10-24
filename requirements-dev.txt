@@ -1,0 +1,21 @@
+# Development and Testing Dependencies
+# Install with: pip install -r requirements.txt -r requirements-dev.txt
+
+# Evaluation Framework (works with Perplexity!)
+deepeval==1.3.0
+
+# Optional: RAGAS (requires OpenAI API - not compatible with Perplexity)
+# ragas==0.2.0
+
+# Optional: For embedding fine-tuning
+# accelerate==0.26.0
+# torch==2.1.0
+
+# Testing
+pytest==8.3.0
+pytest-cov==6.0.0
+
+# Code Quality
+black==24.10.0
+ruff==0.8.0
+mypy==1.13.0
