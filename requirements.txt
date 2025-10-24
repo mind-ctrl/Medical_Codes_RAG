@@ -1,16 +1,17 @@
-# Streamlit Cloud Dependencies - Correct versions only
+# Streamlit Cloud - Python 3.13 compatible versions
+# Since runtime.txt is being ignored, use latest compatible versions
 
-streamlit==1.39.0
-openai==1.50.0
-langchain-core==0.3.0
-langchain-openai==0.2.0
-langchain-community==0.3.0
-faiss-cpu==1.9.0.post1
-sentence-transformers==2.7.0
-rank-bm25==0.2.2
-pandas==2.2.0
-numpy==1.26.4
-openpyxl==3.1.0
-python-dotenv==1.0.0
-pydantic==2.9.0
-scikit-learn==1.5.0
+streamlit
+openai
+langchain-core
+langchain-openai
+langchain-community
+faiss-cpu
+sentence-transformers<3.0.0
+rank-bm25
+pandas
+numpy<2.0.0
+openpyxl
+python-dotenv
+pydantic
+scikit-learn
