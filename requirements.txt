@@ -1,30 +1,27 @@
-# Production Dependencies for Streamlit Cloud Deployment
-# Minimal dependencies to avoid build issues on Python 3.13
+# Streamlit Cloud Production Dependencies
+# Configured for Python 3.12 (see runtime.txt)
 
-# Core Streamlit
-streamlit>=1.39.0
+# Core Framework
+streamlit==1.39.0
 
-# LLM and AI
-openai>=1.50.0
-langchain>=0.3.0
-langchain-openai>=0.2.0
-langchain-community>=0.3.0
+# LLM Integration
+openai==1.50.0
+langchain==0.3.0
+langchain-openai==0.2.0
+langchain-community==0.3.0
 
-# Vector Store and Retrieval
-faiss-cpu>=1.8.0
-sentence-transformers>=3.0.0
-rank-bm25>=0.2.2
+# Vector Search (avoiding spaCy/blis entirely)
+faiss-cpu==1.8.0
+sentence-transformers==2.7.0
+rank-bm25==0.2.2
 
 # Data Processing
-pandas>=2.2.0
-numpy>=1.26.0,<2.0.0
-scikit-learn>=1.5.0
-openpyxl>=3.1.0
+pandas==2.2.0
+numpy==1.26.4
+scikit-learn==1.5.0
+openpyxl==3.1.0
 
 # Utilities
-structlog>=24.0.0
-pydantic>=2.9.0
-python-dotenv>=1.0.0
-
-# Note: Development dependencies (deepeval, pytest, etc.) are in requirements-dev.txt
-# Install dev dependencies with: pip install -r requirements-dev.txt
+structlog==24.4.0
+pydantic==2.9.0
+python-dotenv==1.0.0
