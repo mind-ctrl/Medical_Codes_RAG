@@ -321,14 +321,14 @@ Extract codes:"""
                 
                 # Calculate similarity between response and retrieved docs
                 doc_similarities = cosine_similarity(response_embedding, doc_embeddings)[0]
-                max_doc_similarity = np.max(doc_similarities)
-                
+                max_doc_similarity = float(np.max(doc_similarities))
+
                 # Calculate similarity between response and query
-                query_similarity = cosine_similarity(response_embedding, query_embedding)[0][0]
-                
+                query_similarity = float(cosine_similarity(response_embedding, query_embedding)[0][0])
+
                 # Combined hallucination score (higher = less hallucination)
                 hallucination_score = 0.7 * max_doc_similarity + 0.3 * query_similarity
-                
+
                 return float(hallucination_score)
             else:
                 return 0.5  # Neutral score when no docs available

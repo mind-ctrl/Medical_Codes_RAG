@@ -204,7 +204,7 @@ class HybridRetriever:
             for doc, distance in results:
                 # Convert L2 distance to similarity score (0-1, higher is better)
                 # Using exponential decay: score = exp(-distance)
-                score = np.exp(-distance)
+                score = float(np.exp(-distance))
                 documents_with_scores.append((doc, score))
 
             return documents_with_scores
