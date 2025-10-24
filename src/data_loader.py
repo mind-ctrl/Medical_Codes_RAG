@@ -24,39 +24,44 @@ class MedicalCode(BaseModel):
     synonyms: List[str] = []
 
 class MedicalDataLoader:
-    """Enhanced medical data loader with UMLS integration."""
-    
-    def __init__(self, data_dir: Path = Path("data")):
+    """Enhanced medical data loader (UMLS integration disabled by default)."""
+
+    def __init__(self, data_dir: Path = Path("data"), enable_umls: bool = False):
         self.data_dir = data_dir
         self.data_dir.mkdir(exist_ok=True)
         self.nlp = None
-        self._load_scispacy_model()
+        self.enable_umls = enable_umls
         self._umls_linker_missing_reported = False
-        
+
+        # Only load scispacy if explicitly enabled
+        if self.enable_umls:
+            self._load_scispacy_model()
+
     def _load_scispacy_model(self):
-        """Load scispacy model for UMLS entity linking."""
+        """Load scispacy model for UMLS entity linking (optional feature)."""
         try:
             # Download model if not exists
             import subprocess
             import sys
-            
+
             try:
                 self.nlp = spacy.load("en_core_sci_sm")
             except OSError:
                 logger.info("Downloading scispacy model...")
                 subprocess.run([
-                    sys.executable, "-m", "pip", "install", 
+                    sys.executable, "-m", "pip", "install",
                     "https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_sm-0.5.4.tar.gz"
                 ])
                 self.nlp = spacy.load("en_core_sci_sm")
-                
+
             # Add entity linker for UMLS
             self.nlp.add_pipe("scispacy_linker", config={"resolve_abbreviations": True, "linker_name": "umls"})
             logger.info("ScispaCy model loaded successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to load scispacy model: {e}")
-            self.nlp = spacy.load("en_core_web_sm")  # Fallback
+            logger.info("UMLS enrichment will be skipped")
+            self.nlp = None
     
     def download_icd10_data(self) -> Path:
         """Use local ICD-10-CM codes file."""
@@ -156,33 +161,37 @@ class MedicalDataLoader:
         self, code: str, description: str, code_type: str, specialty: str = None
     ) -> MedicalCode:
         """
-        Enhance medical codes with UMLS concepts and synonyms.
-        If scispacy_linker isn’t installed, skip enrichment after one warning.
+        Enhance medical codes with UMLS concepts and synonyms (only if enabled).
+        UMLS is disabled by default - set enable_umls=True in __init__ to enable.
         """
         umls_concepts: List[str] = []
         synonyms: List[str] = []
 
-        if self.nlp:
-            doc = self.nlp(description)
-
-            # Extract up to 3 UMLS concepts per entity
-            for ent in doc.ents:
-                for concept_id, _ in getattr(ent._, "kb_ents", [])[:3]:
-                    umls_concepts.append(concept_id)
-
-            # Attempt to add synonyms via scispacy_linker once
+        # Skip UMLS enrichment if not enabled or NLP model not loaded
+        if self.enable_umls and self.nlp:
             try:
-                linker = self.nlp.get_pipe("scispacy_linker")
-                for concept_id in umls_concepts[:2]:
-                    concept = linker.kb.cui_to_entity.get(concept_id)
-                    if concept and hasattr(concept, "aliases"):
-                        synonyms.extend(concept.aliases[:5])
-            except KeyError:
-                if not self._umls_linker_missing_reported:
-                    logger.warning("scispacy_linker not found; skipping UMLS enrichment")
-                    self._umls_linker_missing_reported = True
+                doc = self.nlp(description)
+
+                # Extract up to 3 UMLS concepts per entity
+                for ent in doc.ents:
+                    for concept_id, _ in getattr(ent._, "kb_ents", [])[:3]:
+                        umls_concepts.append(concept_id)
+
+                # Attempt to add synonyms via scispacy_linker
+                try:
+                    linker = self.nlp.get_pipe("scispacy_linker")
+                    for concept_id in umls_concepts[:2]:
+                        concept = linker.kb.cui_to_entity.get(concept_id)
+                        if concept and hasattr(concept, "aliases"):
+                            synonyms.extend(concept.aliases[:5])
+                except KeyError:
+                    if not self._umls_linker_missing_reported:
+                        logger.warning("scispacy_linker not found; skipping UMLS enrichment")
+                        self._umls_linker_missing_reported = True
+                except Exception as e:
+                    logger.error(f"Error during UMLS enrichment: {e}")
             except Exception as e:
-                logger.error(f"Error during UMLS enrichment: {e}")
+                logger.error(f"UMLS processing error: {e}")
 
         return MedicalCode(
             code=code,

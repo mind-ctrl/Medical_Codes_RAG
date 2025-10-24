@@ -5,21 +5,34 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from typing import List, Dict, Any, Optional
+import json
 import structlog
 from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import re
+import os
 
 logger = structlog.get_logger()
+
+def _get_default_model() -> str:
+    """Get default model based on API configuration."""
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    api_base = os.getenv("OPENAI_API_BASE", "")
+
+    # Check if using Perplexity
+    if api_key.startswith("pplx-") or "perplexity" in api_base.lower():
+        return os.getenv("LLM_MODEL", "sonar-pro")
+    else:
+        return os.getenv("LLM_MODEL", "gpt-4o-mini")
 
 @dataclass
 class GenerationConfig:
     """Configuration for generation system."""
-    model: str = "gpt-4o-mini"
+    model: str = field(default_factory=_get_default_model)
     temperature: float = 0.1
     max_tokens: int = 500
     hallucination_threshold: float = 0.7
@@ -137,38 +150,142 @@ class MedicalResponseGenerator:
             }
     
     def _extract_codes_from_response(self, response_text: str, retrieved_docs: List[Document]) -> List[Dict[str, Any]]:
-        """Extract structured code information from response."""
+        """Extract structured code information from response with improved parsing."""
         codes = []
-        
-        # Look for code patterns in response
-        code_patterns = [
-            r'([A-Z]\d{2}\.?\d*)\s*:\s*([^-\n]+)',  # ICD-10 pattern
-            r'(\d{5})\s*:\s*([^-\n]+)',             # CPT pattern
+
+        # Enhanced code patterns with multiple formats
+        icd10_patterns = [
+            r'ICD-?10[:\-\s]*([A-Z]\d{2}\.?\d{0,4})',  # ICD-10: A12.34
+            r'\b([A-Z]\d{2}\.?\d{1,4})\b',              # Direct code A12.34
+            r'([A-Z]\d{2})\b',                          # Short code A12
+            r'code[:\s]+([A-Z]\d{2}\.?\d{0,4})',       # "code A12.34"
         ]
-        
-        for pattern in code_patterns:
-            matches = re.findall(pattern, response_text)
+
+        cpt_patterns = [
+            r'CPT[:\-\s]*(\d{5})',                     # CPT: 12345
+            r'\b(\d{5})\b',                             # Direct code 12345
+            r'code[:\s]+(\d{5})',                       # "code 12345"
+        ]
+
+        # Extract ICD-10 codes
+        for pattern in icd10_patterns:
+            matches = re.findall(pattern, response_text, re.IGNORECASE)
             for match in matches:
-                code = match[0].strip()
-                description = match[1].strip()
-                
-                # Verify code exists in retrieved documents
-                source_doc = None
-                for doc in retrieved_docs:
-                    if doc.metadata.get('code') == code:
-                        source_doc = doc
-                        break
-                
+                code = match.upper().strip() if isinstance(match, str) else match[0].upper().strip()
+                # Normalize format (ensure dot if more than 3 chars)
+                if len(code.replace('.', '')) > 3 and '.' not in code:
+                    code = code[:3] + '.' + code[3:]
+
+                # Verify and add
+                source_doc = self._find_code_in_docs(code, retrieved_docs, 'ICD10')
                 if source_doc:
                     codes.append({
                         "code": code,
-                        "description": description,
-                        "code_type": source_doc.metadata.get('code_type', 'Unknown'),
+                        "description": source_doc.metadata.get('description', 'N/A'),
+                        "code_type": "ICD10",
                         "specialty": source_doc.metadata.get('specialty', 'general'),
                         "verified": True
                     })
-        
-        return codes
+
+        # Extract CPT codes
+        for pattern in cpt_patterns:
+            matches = re.findall(pattern, response_text, re.IGNORECASE)
+            for match in matches:
+                code = match.strip() if isinstance(match, str) else match[0].strip()
+
+                # Verify and add
+                source_doc = self._find_code_in_docs(code, retrieved_docs, 'CPT')
+                if source_doc:
+                    codes.append({
+                        "code": code,
+                        "description": source_doc.metadata.get('description', 'N/A'),
+                        "code_type": "CPT",
+                        "specialty": source_doc.metadata.get('specialty', 'general'),
+                        "verified": True
+                    })
+
+        # Deduplicate codes
+        unique_codes = []
+        seen_codes = set()
+        for code_obj in codes:
+            code_key = code_obj['code']
+            if code_key not in seen_codes:
+                seen_codes.add(code_key)
+                unique_codes.append(code_obj)
+
+        # If no codes extracted, try LLM-based structured extraction
+        if not unique_codes:
+            unique_codes = self._llm_extract_codes(response_text, retrieved_docs)
+
+        return unique_codes
+
+    def _find_code_in_docs(self, code: str, docs: List[Document], code_type: str = None) -> Optional[Document]:
+        """Find a code in retrieved documents with fuzzy matching."""
+        # Exact match
+        for doc in docs:
+            doc_code = doc.metadata.get('code', '')
+            if doc_code == code:
+                return doc
+
+        # Fuzzy match (without dots/spaces)
+        normalized_code = code.replace('.', '').replace(' ', '').upper()
+        for doc in docs:
+            doc_code = doc.metadata.get('code', '').replace('.', '').replace(' ', '').upper()
+            if doc_code == normalized_code:
+                if code_type is None or doc.metadata.get('code_type') == code_type:
+                    return doc
+
+        return None
+
+    def _llm_extract_codes(self, response_text: str, retrieved_docs: List[Document]) -> List[Dict[str, Any]]:
+        """Use LLM to extract codes if regex fails."""
+        try:
+            # Build a structured extraction prompt
+            doc_codes = [doc.metadata.get('code', 'N/A') for doc in retrieved_docs[:10]]
+
+            extraction_prompt = f"""Extract ONLY the medical codes mentioned in this response.
+Response: {response_text[:500]}
+
+Available codes from retrieval: {', '.join(doc_codes)}
+
+Return codes in JSON format:
+{{"codes": ["CODE1", "CODE2"]}}
+
+Extract codes:"""
+
+            extraction_response = self.llm.invoke(extraction_prompt)
+            extraction_text = extraction_response.content
+
+            # Parse JSON response
+            import json
+            try:
+                # Try to find JSON in response
+                json_match = re.search(r'\{.*\}', extraction_text, re.DOTALL)
+                if json_match:
+                    data = json.loads(json_match.group())
+                    extracted = data.get('codes', [])
+
+                    # Verify each code
+                    verified_codes = []
+                    for code in extracted:
+                        source_doc = self._find_code_in_docs(code, retrieved_docs)
+                        if source_doc:
+                            verified_codes.append({
+                                "code": code,
+                                "description": source_doc.metadata.get('description', 'N/A'),
+                                "code_type": source_doc.metadata.get('code_type', 'Unknown'),
+                                "specialty": source_doc.metadata.get('specialty', 'general'),
+                                "verified": True
+                            })
+
+                    return verified_codes
+            except json.JSONDecodeError:
+                logger.warning("LLM extraction returned invalid JSON")
+
+        except Exception as e:
+            logger.error(f"LLM code extraction failed: {e}")
+
+        return []
     
     def _extract_confidence(self, response_text: str) -> str:
         """Extract confidence level from response."""

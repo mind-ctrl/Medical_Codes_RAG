@@ -1,23 +1,34 @@
-openai==1.50.0
-langchain-openai==0.2.1
-langchain-community==0.3.0
+# Core Streamlit
+streamlit==1.39.0
+
+# LLM and AI
+openai==1.70.0
 langchain==0.3.0
-chromadb==0.5.18
-spacy~=3.7.5
-scispacy==0.5.4
-scikit-learn==1.5.2
+langchain-openai==0.2.0
+langchain-community==0.3.0
+
+# Vector Store and Retrieval
+faiss-cpu==1.9.0
 sentence-transformers==3.1.0
 rank-bm25==0.2.2
-ragas==0.1.19
-streamlit==1.39.0
+
+# Data Processing
+pandas==2.2.0
+numpy==1.26.4
+scikit-learn==1.5.0
+openpyxl==3.1.0
+
+# Utilities
 structlog==24.4.0
 pydantic==2.9.0
-pandas==2.2.3
-numpy==1.26.0
-openpyxl==3.1.5
-requests==2.32.3
-python-dotenv==1.0.1
+python-dotenv==1.0.0
 
-# Optional heavy dependencies used in evaluation/generation
-# onnxruntime
-# torch
+# Evaluation Framework (works with Perplexity!)
+deepeval==1.3.0
+
+# Optional: RAGAS (requires OpenAI API - not compatible with Perplexity)
+# ragas==0.2.0
+
+# Optional: For embedding fine-tuning (comment out if not using)
+# accelerate==0.26.0
+# torch==2.1.0

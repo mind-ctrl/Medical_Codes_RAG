@@ -34,38 +34,47 @@ class MedicalRAGApp:
         if 'system_initialized' not in st.session_state:
             with st.spinner("Initializing Medical RAG System..."):
                 try:
-                    # Initialize components
-                    self.loader = MedicalDataLoader()
-                    self.retriever = HybridRetriever()
-                    self.generator = MedicalResponseGenerator()
-                    self.evaluator = MedicalRAGEvaluator()
-                    
+                    # Initialize components and store in session_state
+                    st.session_state.loader = MedicalDataLoader()
+                    st.session_state.retriever = HybridRetriever()
+                    st.session_state.generator = MedicalResponseGenerator()
+                    st.session_state.evaluator = MedicalRAGEvaluator()
+
                     # Load data if not already done
                     if 'data_loaded' not in st.session_state:
                         self._load_sample_data()
-                    
+
                     st.session_state.system_initialized = True
                     st.success("System initialized successfully!")
-                    
+
                 except Exception as e:
                     st.error(f"Failed to initialize system: {e}")
                     return
+
+        # Always restore from session_state
+        self.loader = st.session_state.get('loader')
+        self.retriever = st.session_state.get('retriever')
+        self.generator = st.session_state.get('generator')
+        self.evaluator = st.session_state.get('evaluator')
     
     def _load_sample_data(self):
         """Load sample medical data."""
         try:
-            # Generate sample data
-            icd_codes = self.loader.parse_icd10_codes(Path("data/icd10_processed.csv"))
-            cpt_codes = self.loader.parse_cpt_codes(Path("data/cpt_processed.csv"))
+            # Generate sample data using session_state components
+            loader = st.session_state.loader
+            retriever = st.session_state.retriever
+
+            icd_codes = loader.parse_icd10_codes(Path("data/icd10_processed.csv"))
+            cpt_codes = loader.parse_cpt_codes(Path("data/cpt_processed.csv"))
             all_codes = icd_codes + cpt_codes
-            chunks = self.loader.create_chunks_with_metadata(all_codes)
-            
+            chunks = loader.create_chunks_with_metadata(all_codes)
+
             # Initialize retriever with data
-            self.retriever.initialize_vectorstore(chunks)
-            
+            retriever.initialize_vectorstore(chunks)
+
             st.session_state.data_loaded = True
             st.session_state.total_codes = len(all_codes)
-            
+
         except Exception as e:
             st.error(f"Failed to load data: {e}")
     
