@@ -5,12 +5,13 @@ Handles ICD-10-CM and CPT code processing with semantic enrichment.
 import pandas as pd
 import requests
 import zipfile
-import spacy
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import structlog
 from pydantic import BaseModel
 import re
+
+# spaCy is imported conditionally only if UMLS is enabled
 
 logger = structlog.get_logger()
 
@@ -40,7 +41,8 @@ class MedicalDataLoader:
     def _load_scispacy_model(self):
         """Load scispacy model for UMLS entity linking (optional feature)."""
         try:
-            # Download model if not exists
+            # Import spaCy only when needed
+            import spacy
             import subprocess
             import sys
 
